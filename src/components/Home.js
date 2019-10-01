@@ -1,3 +1,5 @@
+import * as API from '../api/api';
+
 let React = require('react');
 var Carousel = require('react-bootstrap').Carousel;
 let imgStyle = {width: '100%', height: '700px'};
@@ -7,7 +9,73 @@ var style1="background-image:url(../images/home.jpg)"
 var img1 = require('../images/home.jpg');
 var img2 = require('../images/popular_2.jpg');
 
-function Home() {
+
+
+class Home extends React.Component {
+  constructor(props) {
+      super(props);
+      this.state = {
+        searchBy: {
+          city: "",
+          stars: 0,
+          reviews: 0
+        }
+      };
+      this.handleSearch = this.handleSearch.bind(this);
+      this.onSubmit = this.onSubmit.bind(this);
+    }
+
+onSubmit(event){
+  event.preventDefault();
+  console.log("Prevent default on submit");
+}
+
+handleSearch(){
+
+  // console.log("Finding using request: ", req);
+  // console.log("Form data: ", this.state.searchBy.city);
+  // console.log("Stars: ", this.state.searchBy.stars);
+  // console.log("Reviews: ", this.state.searchBy.reviews);
+
+  API.getfeatureinfo()
+    .then((res) => {
+                console.log("Request: " +[res]);
+                if (res) {
+                    // console.log(' Success call.')
+                    this.setState({
+                        isLoggedIn: true,
+                        sensordata: res
+                    });
+                    let data = res;
+                    // console.log('ID: ', this.state.sensordata.sensorID)
+                    console.log('Data from server : ', data)
+                    this.props.history.push('/');
+                } else if (res.status === '401') {
+                    console.log("No records");
+                    this.setState({
+                        isLoggedIn: true,
+                        message: "No record found.",
+                    });
+                } else if (res.status === '402') {
+                    this.setState({
+                        isLoggedIn: false,
+                        message: "Session Expired!",
+                    });
+                    this.props.history.push('/');
+                }
+            });
+
+
+
+
+}
+
+componentDidMount(){
+  console.log("Mounted from class!");
+}
+
+  render() {
+// function Home() {
     return (
         <div>
         <div className="home">
@@ -30,36 +98,62 @@ function Home() {
                         </div>
                         <div className="col-12">
                             <div className="find_form_container">
-                                <form action="#" id="find_form" className="find_form d-flex flex-md-row flex-column align-items-md-center align-items-start justify-content-md-between justify-content-start flex-wrap">
+                                <form action="#" id="find_form" className="find_form d-flex flex-md-row flex-column align-items-md-center align-items-start justify-content-md-between justify-content-start flex-wrap" onSubmit={this.onSubmit}>
                                     <div className="find_item">
-                                        <div>Destination:</div>
-                                        <input type="text" className="destination find_input" required="required" placeholder="Keyword here" />
+                                        <div>Destination city:</div>
+                                        <input type="text" className="destination find_input"  placeholder="Enter city" onChange={event => {
+                                                  this.setState({
+                                                    searchBy: {
+                                                      ...this.state.searchBy,
+                                                    city: event.target.value
+                                                  }
+                                                  });
+                                                }} />
                                     </div>
                                     <div className="find_item">
-                                        <div>Adventure type:</div>
-                                        <select name="adventure" id="adventure" className="dropdown_item_select find_input">
-                                            <option>Categories</option>
-                                            <option>Categories</option>
-                                            <option>Categories</option>
+                                        <div>Ratings:</div>
+                                        <select name="ratings" id="ratings" className="dropdown_item_select find_input" onChange={event => {
+                                                  this.setState({
+                                                    searchBy: {
+                                                      ...this.state.searchBy,
+                                                    stars: event.target.value
+                                                  }
+                                                  });
+                                                }}>
+                                            <option>Select stars</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
                                         </select>
                                     </div>
                                     <div className="find_item">
-                                        <div>Min price</div>
-                                        <select name="min_price" id="min_price" className="dropdown_item_select find_input">
+                                        <div>Min reviews</div>
+                                        <select name="min_reviews" id="min_reviews" className="dropdown_item_select find_input" onChange={event => {
+                                                  this.setState({
+                                                    searchBy: {
+                                                      ...this.state.searchBy,
+                                                    reviews: event.target.value
+                                                  }
+                                                  });
+                                                }}>
                                             <option>&nbsp;</option>
-                                            <option>Price</option>
-                                            <option>Price</option>
+                                            <option value="0">0</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                            <option value="200">200</option>
                                         </select>
                                     </div>
                                     <div className="find_item">
-                                        <div>Max price</div>
+                                      { /* <div>Max price</div>
                                         <select name="max_price" id="max_price" className="dropdown_item_select find_input">
                                             <option>&nbsp;</option>
                                             <option>Price</option>
                                             <option>Price</option>
-                                        </select>
+                                        </select>*/}
                                     </div>
-                                    <button className="button find_button">Find</button>
+                                    <button className="button find_button" type="button" onClick={this.handleSearch}>Find</button>
                                 </form>
                             </div>
                         </div>
@@ -71,6 +165,7 @@ function Home() {
 
         </div>
         </div>
-    )
+    );
 }
-module.exports = Home;
+}
+export default Home;
