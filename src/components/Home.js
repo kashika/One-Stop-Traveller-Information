@@ -18,8 +18,15 @@ class Home extends React.Component {
         searchBy: {
           city: "",
           stars: 0,
-          reviews: 0
-        }
+          reviews: 0,
+        },
+        searchData: [],
+        search: 0,
+        // sample : [{name:"one"},
+        // {name:"two"},
+        // {vals:"three"},
+        // {vals:"four"}]
+
       };
       this.handleSearch = this.handleSearch.bind(this);
       this.onSubmit = this.onSubmit.bind(this);
@@ -28,28 +35,39 @@ class Home extends React.Component {
 onSubmit(event){
   event.preventDefault();
   console.log("Prevent default on submit");
+
 }
 
 handleSearch(){
-
+   this.setState({search : 1 });
+  
+  console.log("Search request submitted? ", this.state.search);
+  console.log("Search request with stars: ", this.state.searchBy.stars);
+  let star = this.state.searchBy.stars;
   // console.log("Finding using request: ", req);
   // console.log("Form data: ", this.state.searchBy.city);
   // console.log("Stars: ", this.state.searchBy.stars);
   // console.log("Reviews: ", this.state.searchBy.reviews);
 
-  API.getfeatureinfo()
+  API.getfeatureinfo(star)
     .then((res) => {
-                console.log("Request: " +[res]);
+                console.log("Requesting stars: " +star);
                 if (res) {
                     // console.log(' Success call.')
                     this.setState({
                         isLoggedIn: true,
-                        sensordata: res
+                        searchData: res
                     });
                     let data = res;
-                    // console.log('ID: ', this.state.sensordata.sensorID)
-                    console.log('Data from server : ', data)
-                    this.props.history.push('/');
+                    this.state.searchData = data;
+                    console.log('starID: ', star);
+                    console.log('ID: ', this.state.searchData._id);
+                    console.log('Business Name: ', this.state.searchData.name);
+                    console.log('City: ', this.state.searchData.city);
+                    console.log('Stars: ', this.state.searchData.stars);
+                    console.log('Reviews: ', this.state.searchData.review_count);
+                    // console.log('State: ', this.state.searchData.state);
+                    // this.props.history.push('/');
                 } else if (res.status === '401') {
                     console.log("No records");
                     this.setState({
@@ -64,10 +82,6 @@ handleSearch(){
                     this.props.history.push('/');
                 }
             });
-
-
-
-
 }
 
 componentDidMount(){
@@ -75,6 +89,17 @@ componentDidMount(){
 }
 
   render() {
+    var self = this;
+
+      // if(this.state.search==1 && this.state.searchData.length>0){
+      //   console.log("Search data: "+this.state.searchData);
+      //   Object.keys(this.state.searchData).map(pd => {
+      //     console.log("ObjectKeys search data:" + this.state.searchData[pd].state);
+      //       }
+      //   );
+      // }
+
+
 // function Home() {
     return (
         <div>
@@ -155,14 +180,46 @@ componentDidMount(){
                                     </div>
                                     <button className="button find_button" type="button" onClick={this.handleSearch}>Find</button>
                                 </form>
+                                <div>
+                                </div>
+                                
+
                             </div>
+
                         </div>
+
                     </div>
+                  </div>
                 </div>
-            </div>
 
+                    { this.state && this.state.search==1 && this.state.searchData!==undefined ?
+                      <div className="col-12">
+                    <table className="find_title text-center">
+                            <thead>
+                              <tr>
+                                <th>Business Name</th>
+                                <th>City</th>
+                               {/* <th>Address</th>*/}
+                                <th>Stars</th>
+                                <th>Reviews</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                              <td>{this.state.searchData.name}</td>
+                              <td>{this.state.searchData.city}</td>
+                              {/*<td>{this.state.searchData.address}</td>*/}
+                              <th>{this.state.searchData.stars}</th>
+                              <th>{this.state.searchData.review_count}</th>
+                            </tr>
+                              {/*{nameslist}*/}
+                              {/*{withfilter}*/}
+                            </tbody>
+                          </table>
+                    </div> : <div className="find_title text-center">Please enter your search query!</div>
+                  }
+                    
         </div>
-
         </div>
         </div>
     );

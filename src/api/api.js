@@ -5,8 +5,8 @@ const headers = {
 
 };
 
-export const getfeatureinfo = () =>
-    fetch(`${api}/getfeatureinfo`,{
+export const getfeatureinfo = (star) =>
+    fetch(`${api}/getfeatureinfo/${star}`,{
         method: 'GET',
         headers:{
             ...headers,
@@ -16,6 +16,8 @@ export const getfeatureinfo = () =>
     })
         .then((res) => res.json())
         .then((data) => {
+            console.log("Request to server from getfeatureinfo(): ", star);
+            console.log("Response from server to getfeatureinfo(): ", data);
             return data;
         }).catch(error=> {
         console.log("This is error");
